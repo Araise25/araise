@@ -54,24 +54,27 @@ case "$(uname -s)" in
         # Add to PATH for PowerShell
         userPath=$(echo $PATH)
         echo "User Path: $userPath"
-        if ($userPath -notlike "*$INSTALL_DIR*") {
+        powershell -command "
+        if ($userPath -notlike '*$INSTALL_DIR*') {
             [Environment]::SetEnvironmentVariable(
-                "Path",
-                "$userPath;$INSTALL_DIR",
-                "User"
+                'Path',
+                '$userPath;$INSTALL_DIR',
+                'User'
             )
-        }
+        }"
 
         # Create PowerShell profile if it doesn't exist
+        powershell -command "
         if (!(Test-Path $PROFILE)) {
             New-Item -Path $PROFILE -Type File -Force
-        }
+        }"
 
         # Add alias to PowerShell profile
-        $aliasLine = "Set-Alias -Name araise -Value '$INSTALL_DIR/araise.ps1'"
-        if (!(Select-String -Path $PROFILE -Pattern "araise" -Quiet)) {
+        aliasLine="Set-Alias -Name araise -Value '$INSTALL_DIR/araise.ps1'"
+        powershell -command "
+        if (!(Select-String -Path $PROFILE -Pattern 'araise' -Quiet)) {
             Add-Content -Path $PROFILE -Value $aliasLine
-        }
+        }"
         ;;
 esac
 
