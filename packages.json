@@ -1,0 +1,12 @@
+{
+  "packages": [
+    {
+      "name": "sample-app",
+      "description": "A sample application package",
+      "version": "1.0.0",
+      "author": "RushiChaganti",
+      "repository": "https://github.com/Araise25/sample-app",
+      "installCommand": "git clone https://github.com/Araise25/sample-app.git"
+    }
+  ]
+}
