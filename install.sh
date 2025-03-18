@@ -9,7 +9,7 @@ NC='\033[0m'
 case "$(uname -s)" in
     Linux*|Darwin*)
         # Unix-like systems (Linux/macOS)
-        INSTALL_DIR="$HOME/.araise"
+        INSTALL_DIR="$HOME/.araise/bin"
 
         # Detect shell
         if [ -n "$ZSH_VERSION" ]; then
