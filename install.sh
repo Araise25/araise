@@ -52,7 +52,8 @@ case "$(uname -s)" in
         curl -o "$INSTALL_DIR/araise.ps1" https://araise25.github.io/araise/cli.ps1
 
         # Add to PATH for PowerShell
-        $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+        userPath=$(echo $PATH)
+        echo "User Path: $userPath"
         if ($userPath -notlike "*$INSTALL_DIR*") {
             [Environment]::SetEnvironmentVariable(
                 "Path",
