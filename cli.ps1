@@ -1,7 +1,7 @@
 param(
     [Parameter(Position=0)]
     [string]$Command,
-    
+
     [Parameter(Position=1)]
     [string]$Package
 )
@@ -10,14 +10,14 @@ $ErrorActionPreference = "Stop"
 
 function Install-Package {
     param([string]$PackageName)
-    
+
     Write-Host "Installing package: $PackageName"
-    
+
     try {
         # Get package info from GitHub API
         $response = Invoke-RestMethod -Uri "https://api.github.com/repos/Araise25/$PackageName"
         $repoUrl = $response.clone_url
-        
+
         if ($repoUrl) {
             git clone $repoUrl
             Write-Host "Package $PackageName installed successfully!" -ForegroundColor Green
@@ -53,7 +53,7 @@ switch ($Command) {
     "install" { Install-Package $Package }
     "list" { Get-PackageList }
     "help" { Show-Help }
-    default { 
+    default {
         Write-Host "Unknown command. Use 'araise help' for usage information." -ForegroundColor Yellow
     }
 }
