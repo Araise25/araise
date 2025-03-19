@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Colors for output (ANSI colors work in all modern terminals)
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
@@ -28,11 +28,21 @@ case "$(uname -s)" in
         # Create directory
         mkdir -p "$INSTALL_DIR"
 
-        # Download Unix CLI script
-        curl -o "$INSTALL_DIR/araise" https://araise25.github.io/araise/cli.sh
+        # Download CLI script directly from the repository
+        CLI_URL="https://raw.githubusercontent.com/Araise25/araise/main/cli.sh"
+        if command -v curl &> /dev/null; then
+            curl -fsSL "$CLI_URL" > "$INSTALL_DIR/araise"
+        elif command -v wget &> /dev/null; then
+            wget -q -O "$INSTALL_DIR/araise" "$CLI_URL"
+        else
+            echo -e "${RED}Error: Neither curl nor wget is installed${NC}"
+            exit 1
+        fi
+
+        # Make CLI executable
         chmod +x "$INSTALL_DIR/araise"
 
-        # Add to PATH for Unix shells
+        # Add to PATH if not already added
         if ! grep -q "export PATH=\$PATH:$INSTALL_DIR" "$SHELL_RC"; then
             echo "export PATH=\$PATH:$INSTALL_DIR" >> "$SHELL_RC"
             echo "Please restart your terminal or run: source $SHELL_RC"
@@ -49,32 +59,34 @@ case "$(uname -s)" in
         mkdir -p "$INSTALL_DIR"
 
         # Download PowerShell CLI script
-        curl -o "$INSTALL_DIR/araise.ps1" https://araise25.github.io/araise/cli.ps1
+        CLI_URL="https://raw.githubusercontent.com/Araise25/araise/main/cli.ps1"
+        powershell -Command "
+            New-Item -ItemType Directory -Force -Path '$INSTALL_DIR'
+            Invoke-WebRequest -Uri '$CLI_URL' -OutFile '$INSTALL_DIR/araise.ps1'
+        "
 
         # Add to PATH for PowerShell
-        userPath=$(echo $PATH)
-        echo "User Path: $userPath"
-        powershell -command "
-        if ($userPath -notlike '*$INSTALL_DIR*') {
-            [Environment]::SetEnvironmentVariable(
-                'Path',
-                '$userPath;$INSTALL_DIR',
-                'User'
-            )
-        }"
+        powershell -Command "
+            `$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+            if (`$userPath -notlike '*$INSTALL_DIR*') {
+                [Environment]::SetEnvironmentVariable(
+                    'Path',
+                    `$userPath + ';$INSTALL_DIR',
+                    'User'
+                )
+            }
 
-        # Create PowerShell profile if it doesn't exist
-        powershell -command "
-        if (!(Test-Path $PROFILE)) {
-            New-Item -Path $PROFILE -Type File -Force
-        }"
+            # Create PowerShell profile if it doesn't exist
+            if (!(Test-Path `$PROFILE)) {
+                New-Item -Path `$PROFILE -Type File -Force
+            }
 
-        # Add alias to PowerShell profile
-        aliasLine="Set-Alias -Name araise -Value '$INSTALL_DIR/araise.ps1'"
-        powershell -command "
-        if (!(Select-String -Path $PROFILE -Pattern 'araise' -Quiet)) {
-            Add-Content -Path $PROFILE -Value $aliasLine
-        }"
+            # Add alias to PowerShell profile
+            `$aliasLine = \"Set-Alias -Name araise -Value '$INSTALL_DIR/araise.ps1'\"
+            if (!(Select-String -Path `$PROFILE -Pattern 'araise' -Quiet)) {
+                Add-Content -Path `$PROFILE -Value `$aliasLine
+            }
+        "
         ;;
 esac
 
